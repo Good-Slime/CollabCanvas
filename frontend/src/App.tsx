@@ -28,11 +28,13 @@ function App() {
   }, []);
 
   const handleJoinRoom = (enteredUsername: string, enteredRoomId: string) => {
+    console.log("[App] handleJoinRoom called:", { enteredUsername, enteredRoomId });
     localStorage.setItem("whiteboard_username", enteredUsername);
     setUsername(enteredUsername);
     setRoomId(enteredRoomId);
     window.history.pushState(null, "", `/room/${enteredRoomId}`);
   };
+
 
   const handleLeaveRoom = () => {
     setRoomId("");

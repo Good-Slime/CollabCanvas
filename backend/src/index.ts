@@ -6,20 +6,33 @@ import { Server } from "socket.io";
 import { config } from "./config/config";
 import { Board, IStroke } from "./models/board";
 
+const isOriginAllowed = (origin: string | undefined): boolean => {
+  if (!origin) return true; // allow server-to-server / curl
+  const clean = origin.replace(/\/$/, "");
+  const configUrl = config.FRONTEND_URL.replace(/\/$/, "");
+
+  if (clean === configUrl) return true;
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(clean)) return true;
+  if (/^https:\/\/.*\.vercel\.app$/.test(clean)) return true;
+
+  return false;
+};
+
 const app = express();
 app.use(cors({
-  origin: config.FRONTEND_URL,
+  origin: (origin, callback) => callback(null, isOriginAllowed(origin)),
   credentials: true,
 }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: config.FRONTEND_URL,
+    origin: (origin, callback) => callback(null, isOriginAllowed(origin)),
     methods: ["GET", "POST"],
-    credentials: true,  
+    credentials: true,
   }
 });
+
 
 
 let isMongoConnected = false;
