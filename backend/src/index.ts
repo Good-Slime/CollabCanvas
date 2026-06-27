@@ -7,15 +7,18 @@ import { config } from "./config/config";
 import { Board, IStroke } from "./models/board";
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: config.FRONTEND_URL
+}));
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: config.FRONTEND_URL,
     methods: ["GET", "POST"]
   }
 });
+
 
 let isMongoConnected = false;
 const inMemoryBoards: Record<string, { strokes: IStroke[] }> = {};
