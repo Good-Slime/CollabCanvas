@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
+import { config } from "./config/config";
 import { Board, IStroke } from "./models/board";
 
 const app = express();
@@ -21,14 +22,15 @@ const inMemoryBoards: Record<string, { strokes: IStroke[] }> = {};
 const undoneStrokesMap: Record<string, IStroke[]> = {};
 const users: Record<string, { roomId: string; username: string; color: string }> = {};
 
-mongoose.connect("mongodb://127.0.0.1:27017/whiteboard")
+mongoose.connect(config.MONGODB_URI)
   .then(() => {
     isMongoConnected = true;
-    console.log("MongoDB connected");
+    console.log("MongoDB connected successfully");
   })
   .catch((err) => {
     console.warn("MongoDB connection failed, falling back to in-memory store:", err.message);
   });
+
 
 io.on("connection", (socket) => {
   socket.on("join-room", async ({ roomId, username, color }: { roomId: string; username: string; color: string }) => {
@@ -206,6 +208,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3000, () => {
-  console.log("Server running on port 3000");
+server.listen(config.PORT, () => {
+  console.log(`Server running on port ${config.PORT}`);
 });
+
